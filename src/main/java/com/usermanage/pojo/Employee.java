@@ -1,12 +1,17 @@
 package com.usermanage.pojo;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+
 public class Employee {
     private Integer empId;
 
+    @Pattern(regexp = "^[a-z0-9A-Z_-]{5,16}$|^[\\u2E80-\\u9FFF]{2,5}$", message = "请输入正确的用户名")
     private String empName;
 
     private String gender;
 
+    @Email(message = "请输入正确的邮箱")
     private String email;
 
     private Integer dId;

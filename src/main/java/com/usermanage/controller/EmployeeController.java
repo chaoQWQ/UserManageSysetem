@@ -8,9 +8,14 @@ import com.usermanage.service.EmployeeService;
 import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class EmployeeController {
@@ -58,19 +63,34 @@ public class EmployeeController {
      */
     @RequestMapping(value = "/emp", method = RequestMethod.POST)
     @ResponseBody
-    public Msg saveEmp(Employee employee) {
-        employeeService.saveEmp(employee);
-        return Msg.success();
+    public Msg saveEmp(@Valid Employee employee, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            List<FieldError> fieldErrors = result.getFieldErrors();
+            for (FieldError fieldError : fieldErrors) {
+                map.put(fieldError.getField(), fieldError.getDefaultMessage());
+            }
+            return Msg.fail().add("errorFields", map);
+        } else {
+            employeeService.saveEmp(employee);
+            return Msg.success();
+        }
     }
 
     @ResponseBody
     @RequestMapping(value = "/check")
     public Msg check( String empName){
-        boolean b = employeeService.checkEmpname(empName);
-        if (b){
-           return Msg.fail(); //有重名,名字不可用
-        }else
-           return Msg.success(); //没有重名,名字可用
+        String regname = "^[a-z0-9_-]{5,16}$|^[\\u2E80-\\u9FFF]{2,5}$";
+        if (!empName.matches(regname)){
+            return Msg.fail().add("va_msg","请输入正确的用户名");
+        }else {
+            boolean b = employeeService.checkEmpname(empName);
+            if (b){
+                return Msg.fail().add("va_msg","用户名已存在"); //有重名,名字不可用
+            }else
+                return Msg.success(); //没有重名,名字可用
+        }
+
     }
 
 

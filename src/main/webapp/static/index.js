@@ -125,9 +125,9 @@ $("#emp_add_motal_btn").click(function() {
     $("#save_emp_info").click(function () {
 
         //验证输入
-        if (!validata_add_form()){
-            return false;
-        }
+        // if (!validata_add_form()){
+        //     return false;
+        // }
 
 
             $.ajax({
@@ -136,10 +136,19 @@ $("#emp_add_motal_btn").click(function() {
             data:$("#emp_add_form").serialize(),
             success:function (result) {
                 console.log(result);
-                //关闭模态框
-                $("#empAddModal").modal('hide');
-                //跳转到员工最后一页
-                to_page(totalRecord);
+                if (result.code == 200) {
+                    //关闭模态框
+                    $("#empAddModal").modal('hide');
+                    //跳转到员工最后一页
+                    to_page(totalRecord);
+                }else {
+                    if (result.valList.errorFields.email!=undefined){
+                        show_validate_msg("#email_add_input","error",result.valList.errorFields.email);
+                    }else if (result.valList.errorFields.empName!=undefined){
+                        show_validate_msg("#empName_add_input","error",result.valList.errorFields.empName);
+                    }
+                }
+
             }
         });
 
@@ -161,15 +170,18 @@ $("#empName_add_input").change(function () {
         data:"empName="+empname,
         success:function (result) {
             if (result.code==100){
-                $("#empName_add_input").parent().addClass("has-error");
-                $("#empName_add_input ").next("span").text('用户名已存在');
+                // $("#empName_add_input").parent().addClass("has-error");
+                // $("#empName_add_input ").next("span").text(result.valList.va_msg);
+                show_validate_msg("#empName_add_input","error",result.valList.va_msg);
                 $("#emp_add_form ").attr("formStatus","hasError");
+                console.log("aaaa");
 
             }
             else if(result.code==200){
-                $("#empName_add_input").parent().addClass("has-success");
+                // $("#empName_add_input").parent().addClass("has-success");
+                show_validate_msg("#empName_add_input","success","");
                 $("#emp_add_form ").attr("formStatus","isOk");
-
+                console.log("bbbb");
 
             }
 
@@ -182,7 +194,7 @@ function validata_add_form() {
     clearErrorInfo();
 
     var empName = $("#empName_add_input").val();
-    var regName = /^[a-z0-9_-]{3,16}$|^[\u2E80-\u9FFF]{2,5}$/;
+    var regName = /^[a-z0-9_-]{5,16}$|^[\u2E80-\u9FFF]{2,5}$/;
     if ($("#emp_add_form").attr("formStatus")=="isOk"){
         if (!regName.test(empName)) {
             $("#empName_add_input").parent().addClass("has-error");
@@ -213,6 +225,15 @@ function validata_add_form() {
     return true;
 }
 
+function show_validate_msg(ele, status, msg) {
+    if ("success" == status) {
+        $(ele).parent().addClass("has-success");
+        $(ele).next("span").text("");
+    } else if ("error" == status) {
+        $(ele).parent().addClass("has-error");
+        $(ele).next("span").text(msg);
+    }
+}
 
 function resetform() {
     $("#emp_add_form")[0].reset();
