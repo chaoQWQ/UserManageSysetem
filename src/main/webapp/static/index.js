@@ -1,5 +1,6 @@
 
 var totalRecord;
+var currentPage;
 /**
  * 员工表构建
  * @param result
@@ -46,6 +47,7 @@ function build_page_info(result) {
         + result.valList.PageInfo.total
         + "有条记录")
     totalRecord = result.valList.PageInfo.total;
+    currentPage = result.valList.PageInfo.pageNum;
 
 }
 
@@ -113,21 +115,21 @@ $("#emp_add_motal_btn").click(function() {
 
     resetform();
     //查询出部门信息显示在下拉框
-    getDepts();
+    getDepts("#dept_add_area");
 
 
     //弹出模态框
     $("#empAddModal").modal({
-        backdrop : "static"
+        backdrop : "static" //点击空白处退出模态框
     });
 
     $("#save_emp_info").unbind('click');
     $("#save_emp_info").click(function () {
 
         //验证输入
-        // if (!validata_add_form()){
-        //     return false;
-        // }
+        if (!validata_add_form()){
+            return false;
+        }
 
 
             $.ajax({
@@ -189,6 +191,62 @@ $("#empName_add_input").change(function () {
     })
 });
 
+
+/**
+ * 弹出修改信息框
+ */
+//为“编辑”按钮绑定点击事件
+$(document).on("click",".edit_btn", function () {
+    //清除之前信息
+    $("#dept_update_area").html('');
+    //填入信息到模态框
+    getDepts("#dept_update_area");
+    var thisId = $(this).attr("edit-id");
+    console.log("当前id:"+thisId);
+    getEmp(thisId);
+
+    //打开模态框
+    $("#empUpdateModal").modal({
+        backdrop : "static" //点击空白处退出模态框
+    });
+
+    $("#update_emp_info").click(function() {
+        //校验邮箱
+        var email = $("#email_update_input").val();
+        var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if (!regEmail.test(email)) {
+            show_validate_msg("#email_update_input", "error", "邮箱格式输入错误");
+            return false;
+        } else {
+            show_validate_msg("#email_update_input", "success", "");
+        }
+        //保存员工数据
+        $.ajax({
+            url : "http://localhost:8080/emp/" + thisId,
+            type : "PUT",
+            data : $("#emp_updata_form").serialize(),
+            success : function(result) {
+                if (result.code == 200) {
+                    //关闭模态框
+                    $("#empUpdateModal").modal("hide");
+                    //回到本页面
+                    to_page(currentPage);
+                } else {
+                    alert("更新失败");
+                }
+            }
+        });
+    });
+
+
+});
+
+
+
+/**
+ * 验证表单输入信息
+ * @returns {boolean}
+ */
 function validata_add_form() {
     //清除之前的报错信息
     clearErrorInfo();
@@ -247,7 +305,21 @@ function clearErrorInfo() {
     $("#email_add_input").next("span").text('');
 }
 
-function getDepts() {
+function getEmp(id) {
+    $.ajax({
+        url : "http://localhost:8080/emp/" + id,
+        type : "GET",
+        success : function(result) {
+            var empData = result.valList.emp;
+            $("#empName_update_static").text(empData.empName);
+            $("#email_update_input").val(empData.email);
+            $("#empUpdateModal input[name=gender]").val([ empData.gender ]);
+            $("#empUpdateModal select").val([ empData.dId ]);
+        }
+    })
+}
+
+function getDepts(ele) {
     $.ajax({
         url: "http://localhost:8080/depts",
         type: "GET",
@@ -256,7 +328,7 @@ function getDepts() {
             var deptInfo = result.valList.alldepts;
             $.each(deptInfo, function (index, item) {
                 var option = $("<option></option>").append(item.deptName).attr("value", item.deptId);
-                option.appendTo("#dept_add_area");
+                option.appendTo(ele);
             });
         }
     });

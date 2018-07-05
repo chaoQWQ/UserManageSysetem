@@ -33,4 +33,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         }else
             return true;
     }
+    @Override
+    public Employee getEmp(Integer id){
+        Employee e = employeeMapper.selectByPrimaryKeyWithDept(id);
+        return e;
+    }
+
+    @Override
+    public void updateEmp(Employee employee){
+        employeeMapper.updateByPrimaryKeySelective(employee);
+    }
 }

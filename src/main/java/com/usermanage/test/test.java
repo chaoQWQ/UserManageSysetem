@@ -17,8 +17,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
 public class test {
 //    @Autowired
 //    private DepartmentMapper departmentMapper;
@@ -111,12 +111,19 @@ public class test {
     @Test
     public void jk(){
         ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
-
         EmployeeMapper employeeMapper = ioc.getBean(EmployeeMapper.class);
         for (int i=0;i<10;i++){
 
         employeeMapper.insertSelective(new Employee(null,"爽肤水","女","46451215@qq.com",2));
         }
+    }
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
+    @Test
+    public void jd(){
+        Employee employee = employeeMapper.selectByPrimaryKeyWithDept(102);
+        System.out.println("********"+employee);
     }
 
 }

@@ -10,4 +10,9 @@ public interface EmployeeService {
     public void saveEmp(Employee employee);
 
     public boolean checkEmpname(String empName);
+
+
+    public Employee getEmp(Integer id);
+
+    public void updateEmp(Employee employee);
 }

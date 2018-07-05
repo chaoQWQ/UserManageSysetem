@@ -93,5 +93,30 @@ public class EmployeeController {
 
     }
 
+    /**
+     * 查询单个员工信息
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/emp/{id}",method = RequestMethod.GET)
+    public Msg getEmp(@PathVariable("id") Integer id){
+        Employee emp = employeeService.getEmp(id);
+        return Msg.success().add("emp",emp);
+    }
+
+    /**
+     * 保存修改信息
+     * 注意：是emp/{empId}，而不是emp/{id}或其他，这要和Employee的属性名一致
+     * @param employee
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "emp/{empId}",method = RequestMethod.PUT)
+    public Msg updateEmp(Employee employee){
+        employeeService.updateEmp(employee);
+        return Msg.success();
+    }
+
 
 }

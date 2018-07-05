@@ -59,7 +59,7 @@
     
     
 
-    <!--&lt;!&ndash;============事务控制的配置============&ndash;&gt;-->
+    <!--============事务控制的配置============-->
     <!--<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
          <!--&lt;!&ndash;控制数据源&ndash;&gt;-->
         <!--<property name="dataSource" ref="datasource"/>-->

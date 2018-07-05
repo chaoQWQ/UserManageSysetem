@@ -80,9 +80,41 @@
   <sql id="Base_Column_List" >
     emp_id, emp_name, gender, email, d_id
   </sql>
+  <sql id="WithDept_Column_List">
+    e.emp_id, e.emp_name, e.gender, e.email, e.d_id, d.dept_id, d.dept_name
+</sql>
+
   <select id="selectAll" resultMap="WithDeptBaseResultMap">
     SELECT tbl_emp.emp_id ,tbl_emp.emp_name ,tbl_emp.gender,tbl_emp.email,tbl_dept.dept_id,tbl_dept.dept_name from tbl_emp left join tbl_dept on tbl_emp.d_id=tbl_dept.dept_id
   </select>
+  <select id="selectByPrimaryKeyWithDept" parameterType="java.lang.Integer" resultMap="WithDeptBaseResultMap">
+    select
+    <include refid="WithDept_Column_List" />
+    from tbl_emp e
+    left join tbl_dept d
+    on e.d_id = d.dept_id
+    where emp_id = #{empId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByExampleWithDept" resultMap="WithDeptBaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="WithDept_Column_List" />
+    from tbl_emp e
+    left join tbl_dept d
+    on e.d_id = d.dept_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+
+
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.usermanage.pojo.EmployeeExample" >
     select
     <if test="distinct" >
