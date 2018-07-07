@@ -19,6 +19,7 @@ function build_emp_table(result) {
             .append($("<span></span>").addClass("glyphicon glyphicon-trash"))
             .append("删除");
         delBtn.attr("del-id", emp.empId);
+        var checkBoxTd = $("<td><input type='checkbox' class='check_item'></input></td>");
         var empIdTd = $("<td></td>").append(emp.empId);
         var empNameTd = $("<td></td>").append(emp.empName);
         var genderTd = $("<td></td>").append(emp.gender);
@@ -27,7 +28,7 @@ function build_emp_table(result) {
         var botton = $("<td></td>").append(editBtn).append(" ").append(delBtn);
 
 
-        var tr = $("<tr></tr>").append(empIdTd).append(empNameTd).append(genderTd).append(emailTd).append(deptNameTd).append(botton);
+        var tr = $("<tr></tr>").append(checkBoxTd).append(empIdTd).append(empNameTd).append(genderTd).append(emailTd).append(deptNameTd).append(botton);
         tr.appendTo("#emps_table tbody");
 
     });
@@ -241,7 +242,61 @@ $(document).on("click",".edit_btn", function () {
 
 });
 
+/**
+ * 单个删除操作
+ */
+$(document).on("click", ".delete_btn",function () {
+    var thisId = $(this).attr("del-id");
+    console.log($(this).parents());
+    console.log($(this).parent());
+    var empName = $(this).parents("tr").find("td:eq(2)").text();
+    if (confirm("确认删除【"+empName+"】吗?")) {
+        $.ajax({
+            url : "http://localhost:8080/emp/" + thisId,
+            type : "delete",
+            success : function (result) {
+                to_page(currentPage);
+                alert("删除成功");
+            }
+        });
+    }
 
+});
+
+
+/**
+ * 批量删除功能
+ */
+$("#check-all").click(function(){
+    $(".check_item").prop("checked",$(this).prop("checked"));
+});
+//单选点满，全选按钮也要勾上
+$(document).on("click",".check_item",function(){
+    //判断是否全部勾选
+    var flag = $(".check_item:checked").length==$(".check_item").length;
+    $("#check-all").prop("checked",flag);
+});
+
+//点击全部删除
+$("#emp_delete_all_btn").click(function(){
+    var empNames = "";
+    var del_idstr = "";
+    $.each($(".check_item:checked"),function(index,item){
+        empNames += $(this).parents("tr").find("td:eq(2)").text() + ",";
+        del_idstr += $(this).parents("tr").find("td:eq(1)").text() + "-";
+    });
+    empNames = empNames.substring(0,empNames.length-1);
+    del_idstr = del_idstr.substring(0,del_idstr.length-1);
+    if(confirm("确认删除"+empNames+"?")){
+        $.ajax({
+            url:"http://localhost:8080/emp/" + del_idstr,
+            type:"DELETE",
+            success:function(result){
+                to_page(currentPage);
+            }
+        });
+    }
+});
 
 /**
  * 验证表单输入信息
